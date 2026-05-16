@@ -11,39 +11,58 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout código
-      uses: actions/checkout@v3
+      - name: Checkout código
+        uses: actions/checkout@v4
 
-    - name: Configurar credenciales AWS
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configurar credenciales AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Login en Amazon ECR (runner)
-      uses: aws-actions/amazon-ecr-login@v1
+      - name: Login en Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build imagen DB y push a ECR
-      run: |
-        cd db
-        docker build -t tienda-db .
-        docker tag tienda-db:latest ${{ secrets.ECR_REPO_URL_DB }}:latest
-        docker push ${{ secrets.ECR_REPO_URL_DB }}:latest
+      - name: Build y Push imagen DB a ECR
+        run: |
+          docker build -t tienda-db ./db
+          docker tag tienda-db:latest ${{ secrets.ECR_REPO_URL_DB }}:latest
+          docker push ${{ secrets.ECR_REPO_URL_DB }}:latest
 
-    - name: Desplegar DB vía SSM
-      run: |
-        aws ssm send-command \
-          --instance-ids ${{ secrets.EC2_DB_INSTANCE_ID }} \
-          --document-name "AWS-RunShellScript" \
-          --comment "Actualizar tienda-db desde ECR" \
-          --parameters '{"commands":[
-            "set -e",
-            "aws ecr get-login-password --region '${{ secrets.AWS_REGION }}' | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}",
-            "docker pull ${{ secrets.ECR_REPO_URL_DB }}:latest",
-            "docker stop tienda-db || true",
-            "docker rm tienda-db || true",
-            "docker run -d --name tienda-db -p 3306:3306 -v dbdata:/var/lib/mysql ${{ secrets.ECR_REPO_URL_DB }}:latest"
-          ]}' \
-          --output text
+      - name: Desplegar DB en EC2 vía SSM
+        id: ssm_db
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "${{ secrets.EC2_DB_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy tienda-db desde ECR" \
+            --parameters '{"commands":[
+              "set -e",
+              "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPO_URL_DB }}",
+              "docker pull ${{ secrets.ECR_REPO_URL_DB }}:latest",
+              "docker stop tienda-db || true",
+              "docker rm tienda-db || true",
+              "docker volume create dbdata || true",
+              "docker run -d --name tienda-db --restart unless-stopped -p 3306:3306 -v dbdata:/var/lib/mysql ${{ secrets.ECR_REPO_URL_DB }}:latest"
+            ]}' \
+            --output text \
+            --query "Command.CommandId")
+          echo "command_id=$COMMAND_ID" >> $GITHUB_OUTPUT
+
+      - name: Verificar resultado del despliegue DB
+        run: |
+          aws ssm wait command-executed \
+            --command-id "${{ steps.ssm_db.outputs.command_id }}" \
+            --instance-id "${{ secrets.EC2_DB_INSTANCE_ID }}"
+          STATUS=$(aws ssm get-command-invocation \
+            --command-id "${{ steps.ssm_db.outputs.command_id }}" \
+            --instance-id "${{ secrets.EC2_DB_INSTANCE_ID }}" \
+            --query "Status" \
+            --output text)
+          echo "Estado del comando SSM: $STATUS"
+          if [ "$STATUS" != "Success" ]; then
+            echo "El despliegue falló con estado: $STATUS"
+            exit 1
+          fi

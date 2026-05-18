@@ -45,7 +45,7 @@ jobs:
               "docker pull ${{ secrets.ECR_REPO_URL_FRONTEND }}:latest",
               "docker stop tienda-frontend || true",
               "docker rm tienda-frontend || true",
-              "docker run -d --name tienda-frontend --restart unless-stopped -p 80:80 -p 8080:8080 ${{ secrets.ECR_REPO_URL_FRONTEND }}:latest"
+              "docker run -d --name tienda-frontend --restart unless-stopped -p 80:80 -p 8080:8080 -e BACKEND_URL=${{ secrets.BACKEND_URL }} ${{ secrets.ECR_REPO_URL_FRONTEND }}:latest"
             ]}' \
             --output text \
             --query "Command.CommandId")

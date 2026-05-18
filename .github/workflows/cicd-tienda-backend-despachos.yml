@@ -1,14 +1,14 @@
-name: CI/CD Tienda Perritos - Backend
+name: CI/CD - Backend Despachos (Spring Boot)
 
 on:
   push:
     branches: [ "main" ]
     paths:
-      - "backend/**"
+      - "backend-despachos/**"
   workflow_dispatch:
 
 jobs:
-  build-push-deploy-backend:
+  build-push-deploy-backend-despachos:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,38 +26,38 @@ jobs:
       - name: Login en Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build y Push imagen Backend a ECR
+      - name: Build y Push imagen Backend Despachos a ECR
         run: |
-          docker build -t tienda-backend ./backend
-          docker tag tienda-backend:latest ${{ secrets.ECR_REPO_URL_BACKEND }}:latest
-          docker push ${{ secrets.ECR_REPO_URL_BACKEND }}:latest
+          docker build -t backend-despachos ./backend-despachos
+          docker tag backend-despachos:latest ${{ secrets.ECR_REPO_URL_BACKEND }}:despachos-latest
+          docker push ${{ secrets.ECR_REPO_URL_BACKEND }}:despachos-latest
 
-      - name: Desplegar Backend en EC2 vía SSM
-        id: ssm_backend
+      - name: Desplegar Backend Despachos en EC2 vía SSM
+        id: ssm_backend_despachos
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "${{ secrets.EC2_BACKEND_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "Deploy tienda-backend desde ECR" \
+            --comment "Deploy backend-despachos desde ECR" \
             --parameters '{"commands":[
               "set -e",
               "aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPO_URL_BACKEND }}",
-              "docker pull ${{ secrets.ECR_REPO_URL_BACKEND }}:latest",
-              "docker stop tienda-backend || true",
-              "docker rm tienda-backend || true",
-              "docker run -d --name tienda-backend --restart unless-stopped -p 3001:3001 -e DB_HOST=${{ secrets.DB_HOST }} -e DB_USER=root -e DB_PASSWORD=admin123 -e DB_NAME=tienda_perritos ${{ secrets.ECR_REPO_URL_BACKEND }}:latest"
+              "docker pull ${{ secrets.ECR_REPO_URL_BACKEND }}:despachos-latest",
+              "docker stop backend-despachos || true",
+              "docker rm backend-despachos || true",
+              "docker run -d --name backend-despachos --restart unless-stopped -p 8081:8081 -e DB_ENDPOINT=${{ secrets.DB_HOST }} -e DB_PORT=3306 -e DB_NAME=tienda_semestral -e DB_USERNAME=root -e DB_PASSWORD=admin123 ${{ secrets.ECR_REPO_URL_BACKEND }}:despachos-latest"
             ]}' \
             --output text \
             --query "Command.CommandId")
           echo "command_id=$COMMAND_ID" >> $GITHUB_OUTPUT
 
-      - name: Verificar resultado del despliegue Backend
+      - name: Verificar resultado del despliegue Backend Despachos
         run: |
           aws ssm wait command-executed \
-            --command-id "${{ steps.ssm_backend.outputs.command_id }}" \
+            --command-id "${{ steps.ssm_backend_despachos.outputs.command_id }}" \
             --instance-id "${{ secrets.EC2_BACKEND_INSTANCE_ID }}"
           STATUS=$(aws ssm get-command-invocation \
-            --command-id "${{ steps.ssm_backend.outputs.command_id }}" \
+            --command-id "${{ steps.ssm_backend_despachos.outputs.command_id }}" \
             --instance-id "${{ secrets.EC2_BACKEND_INSTANCE_ID }}" \
             --query "Status" \
             --output text)

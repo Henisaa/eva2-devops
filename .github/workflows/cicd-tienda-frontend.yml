@@ -28,7 +28,10 @@ jobs:
 
       - name: Build y Push imagen Frontend a ECR
         run: |
-          docker build -t tienda-frontend ./frontend
+          docker build \
+            --build-arg VITE_API_VENTAS_URL=${{ secrets.BACKEND_URL }}:8080 \
+            --build-arg VITE_API_DESPACHOS_URL=${{ secrets.BACKEND_URL }}:8081 \
+            -t tienda-frontend ./frontend
           docker tag tienda-frontend:latest ${{ secrets.ECR_REPO_URL_FRONTEND }}:latest
           docker push ${{ secrets.ECR_REPO_URL_FRONTEND }}:latest
 
@@ -45,7 +48,7 @@ jobs:
               "docker pull ${{ secrets.ECR_REPO_URL_FRONTEND }}:latest",
               "docker stop tienda-frontend || true",
               "docker rm tienda-frontend || true",
-              "docker run -d --name tienda-frontend --restart unless-stopped -p 80:80 -p 8080:8080 -e BACKEND_URL=${{ secrets.BACKEND_URL }} ${{ secrets.ECR_REPO_URL_FRONTEND }}:latest"
+              "docker run -d --name tienda-frontend --restart unless-stopped -p 80:80 ${{ secrets.ECR_REPO_URL_FRONTEND }}:latest"
             ]}' \
             --output text \
             --query "Command.CommandId")

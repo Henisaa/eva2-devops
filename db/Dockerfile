@@ -1,14 +1,14 @@
 # Imagen base MySQL 8 oficial
 FROM mysql:8
 
-# Variables de entorno (se aplicarán automáticamente al iniciar el contenedor)
+# Variables de entorno para la BD del Proyecto Semestral
 ENV MYSQL_ROOT_PASSWORD=admin123
-ENV MYSQL_DATABASE=tienda_perritos
+ENV MYSQL_DATABASE=tienda_semestral
 ENV MYSQL_USER=alumno
 ENV MYSQL_PASSWORD=alumno123
 
-# Copiar el script de inicialización dentro de la imagen
-# Se ejecuta automáticamente la primera vez que se levante el contenedor
+# Copiar el script de inicialización
+# Spring Boot creará las tablas automáticamente (ddl-auto=update)
 COPY init.sql /docker-entrypoint-initdb.d/
 
 # Exponer el puerto de MySQL

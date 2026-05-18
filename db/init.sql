@@ -1,17 +1,21 @@
-CREATE DATABASE IF NOT EXISTS tienda_perritos;
-USE tienda_perritos;
+-- ============================================================
+-- Base de datos del Proyecto Semestral ISY1101
+-- Ventas y Despachos
+-- ============================================================
+CREATE DATABASE IF NOT EXISTS tienda_semestral;
+USE tienda_semestral;
 
-CREATE TABLE IF NOT EXISTS productos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    descripcion VARCHAR(255),
-    precio DECIMAL(10,2) NOT NULL,
-    stock INT NOT NULL
-);
+-- Spring Boot (ddl-auto=update) creará las tablas venta y despacho
+-- automáticamente al iniciar. Este script solo provee datos de ejemplo.
 
-INSERT INTO productos (nombre, descripcion, precio, stock) VALUES
-('Alimento Cachorro Premium', 'Sabor a pollo, razas pequenas', 19990, 15),
-('Alimento Adulto Light', 'Control de peso, razas medianas', 17990, 8),
-('Snacks Dentales', 'Ayuda a la limpieza dental', 5990, 30),
-('Alimento Adulto Pedigree', 'Sabor carne', 15990, 40),
-('Bravery pollo Adulto raza pequena', 'Sabor a pollo', 25990, 20);
+-- Nota: Las tablas son creadas por Hibernate al arrancar la app Spring Boot.
+-- Los INSERT de ejemplo se ejecutarán una vez que las tablas existan.
+-- Si las tablas no existen aún, este bloque es referencial.
+
+-- Datos de ejemplo para ventas (tabla generada por Hibernate como 'venta')
+INSERT INTO venta (id_venta, direccion_compra, valor_compra, fecha_compra, despacho_generado)
+VALUES
+  (1, 'Av. Providencia 1234, Santiago', 35980, '2024-01-10', false),
+  (2, 'Calle Las Condes 567, Santiago', 17990, '2024-01-11', false),
+  (3, 'Pasaje El Roble 89, Ñuñoa', 25990, '2024-01-12', false)
+ON DUPLICATE KEY UPDATE id_venta = id_venta;

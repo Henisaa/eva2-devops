@@ -1,4 +1,4 @@
-name: CI/CD Tienda Perritos - DB
+name: CI/CD Proyecto semestral - DB
 
 on:
   push:

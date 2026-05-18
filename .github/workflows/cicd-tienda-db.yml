@@ -36,7 +36,7 @@ jobs:
         id: ssm_db
         run: |
           COMMAND_ID=$(aws ssm send-command \
-            --instance-ids "${{ secrets.EC2_DB_INSTANCE_ID }}" \
+            --instance-ids "i-01482dfd9d0453cdc" \
             --document-name "AWS-RunShellScript" \
             --comment "Deploy tienda-db desde ECR" \
             --parameters '{"commands":[
@@ -56,10 +56,10 @@ jobs:
         run: |
           aws ssm wait command-executed \
             --command-id "${{ steps.ssm_db.outputs.command_id }}" \
-            --instance-id "${{ secrets.EC2_DB_INSTANCE_ID }}"
+            --instance-id "i-01482dfd9d0453cdc"
           STATUS=$(aws ssm get-command-invocation \
             --command-id "${{ steps.ssm_db.outputs.command_id }}" \
-            --instance-id "${{ secrets.EC2_DB_INSTANCE_ID }}" \
+            --instance-id "i-01482dfd9d0453cdc" \
             --query "Status" \
             --output text)
           echo "Estado del comando SSM: $STATUS"

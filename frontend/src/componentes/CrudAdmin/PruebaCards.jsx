@@ -2,11 +2,9 @@ import { useState } from "react";
 import { CardComponent } from "./CardComponent";
 import { TableCompras } from "./TableCompras";
 import { TableDespachos } from "./TableDespachos";
-
 export const PruebaCards = () => {
   const [tablaCompras, setTablaCompras] = useState(false);
   const [tablaOrdenes, setTablaOrdenes] = useState(false);
-
   return (
     <section>
       <div className="flex justify-center">
@@ -29,7 +27,6 @@ export const PruebaCards = () => {
           }}
         />
       </div>
-
       <section>
         {tablaCompras && <TableCompras />}
         {tablaOrdenes && <TableDespachos />}

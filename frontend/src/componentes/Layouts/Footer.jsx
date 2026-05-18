@@ -1,6 +1,5 @@
 import React from "react";
 import logo1 from "../../assets/images/logo2.png";
-
 function Footer() {
   return (
     <footer className="bg-teal-500 p-4 text-center w-full rounded-xl">
@@ -81,5 +80,4 @@ function Footer() {
     </footer>
   );
 }
-
 export default Footer;

@@ -2,10 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Modal } from "./Modal";
 import { FormCierreDespacho } from "./FormCierreDespacho";
-
 export const TableDespachos = () => {
   const [despachos, setDespachos] = useState([]);
-
   const despacho = async () => {
     await axios
       .get(`${import.meta.env.VITE_API_DESPACHOS_URL}/api/v1/despachos`, {
@@ -19,19 +17,15 @@ export const TableDespachos = () => {
         setDespachos(response.data);
       });
   };
-  // Llamada a la función para obtener los datos cuando el componente se monta
   useEffect(() => {
     despacho();
   }, []);
-
   const [openModal, setOpenModal] = useState(false);
   const [despachoSeleccionado, setDespachoSeleccionado] = useState(null);
-
   const handleAbrirModal = (despacho) => {
     setDespachoSeleccionado(despacho);
     setOpenModal(true);
   };
-
   return (
     <>
       <section className="grid text-center grid-cols-12 mb-8">
@@ -51,7 +45,6 @@ export const TableDespachos = () => {
               </thead>
               <tbody>
                 {despachos
-               
                 .map((despacho) => (
                   <tr key={despacho.idDespacho}>
                     <td className="pr-10 py-10 items-center">{despacho.idDespacho}</td>
@@ -100,7 +93,6 @@ export const TableDespachos = () => {
           <FormCierreDespacho
             despacho={despachoSeleccionado}
             onClose={() => {
-              //onclose es un prop que pasa funciones al modal con el form abierto, por ende al cerrarse, se ejecutan esas 2 funciones
               setOpenModal(false), despacho();
             }}
           />

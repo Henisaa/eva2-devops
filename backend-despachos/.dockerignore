@@ -4,12 +4,11 @@
 .idea/
 *.log
 
-# Ignora dependencias locales
+# Ignora artefactos de compilación local (NO .mvn, es necesario para el build Docker)
 target/
-.mvn/
 .settings/
 
-# Ignora control de versiones y sistema de build
+# Ignora control de versiones
 .git/
 .gitignore
 docker-compose.override.yml

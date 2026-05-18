@@ -13,7 +13,6 @@ function Reviews() {
             width="158"
             height="48"
           />
-
           <img
             className="col-span-2 max-h-12 w-full object-contain lg:col-span-1 mx-auto"
             src="https://seeklogo.com/images/H/hyper-x-logo-C4B6774A38-seeklogo.com.png"
@@ -33,5 +32,4 @@ function Reviews() {
     </div>
   );
 }
-
 export default Reviews;

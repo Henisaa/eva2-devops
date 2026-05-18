@@ -1,9 +1,7 @@
 import Navbar from "./Layouts/Navbar";
 import Footer from "./Layouts/Footer";
-
 import { PruebaCards } from "./CrudAdmin/PruebaCards";
 import Reviews from "./Layouts/Reviews";
-
 export const CrudAdmin = () => {
   return (
     <>
@@ -12,7 +10,6 @@ export const CrudAdmin = () => {
           {/* Columna 1: Navbar (ancho fijo) */}
           <Navbar />
         </div>
-
         {/* Columna 2: Contenido principal (ocupa el espacio restante) */}
         <div className="overflow-y-auto p-6">
           {" "}

@@ -1,10 +1,8 @@
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import axios from "axios";
-
 export const FormDespacho = ({ venta, onClose }) => {
   const { register, handleSubmit } = useForm();
-
   const onSubmit = async (data) => {
     console.log("onSubmit ejecutado");
     const jsonData = {
@@ -16,13 +14,10 @@ export const FormDespacho = ({ venta, onClose }) => {
       direccionCompra: venta.direccionCompra,
       valorCompra: venta.valorCompra,
     };
-
     const jsonDataSales = {
       despachoGenerado: true,
     };
-
     console.log("Datos del formulario:", jsonData);
-
     try {
       await axios.put(
         `${import.meta.env.VITE_API_VENTAS_URL}/api/v1/ventas/${venta.idVenta}`,
@@ -107,7 +102,6 @@ export const FormDespacho = ({ venta, onClose }) => {
             disabled={true}
           />
         </div>
-
         <button
           className="py-6 px-14 rounded-lg bg-teal-600 text-white font-bold mb-14"
           type="submit"

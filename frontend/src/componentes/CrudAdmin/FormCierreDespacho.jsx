@@ -1,19 +1,15 @@
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import axios from "axios";
-
 export const FormCierreDespacho = ({ despacho, onClose }) => {
   const { register, handleSubmit } = useForm();
-
   const onSubmit = async (data) => {
     console.log("onSubmit ejecutado");
     const jsonData = {
       intento: data.intento,
       despachado: data.despachado,
     };
-
     console.log("Datos del formulario:", jsonData);
-
     try {
       await axios.put(
         `${import.meta.env.VITE_API_DESPACHOS_URL}/api/v1/despachos/${despacho.idDespacho}`,
@@ -36,7 +32,6 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
     }
     onClose();
   };
-
   return (
     <>
       <form
@@ -122,7 +117,6 @@ export const FormCierreDespacho = ({ despacho, onClose }) => {
             value={despacho.valorCompra}
           />
         </div>
-
         <button
           className="py-6 px-14 rounded-lg bg-teal-600 text-white font-bold mb-14"
           type="submit"

@@ -4,7 +4,6 @@ import axios from "axios";
 export const FormDespacho = ({ venta, onClose }) => {
   const { register, handleSubmit } = useForm();
   const onSubmit = async (data) => {
-    console.log("onSubmit ejecutado");
     const jsonData = {
       fechaDespacho: data.fechaDespacho,
       patenteCamion: data.patenteCamion,
@@ -17,26 +16,25 @@ export const FormDespacho = ({ venta, onClose }) => {
     const jsonDataSales = {
       despachoGenerado: true,
     };
-    console.log("Datos del formulario:", jsonData);
     try {
       await axios.put(
-        `${import.meta.env.VITE_API_VENTAS_URL}/api/v1/ventas/${venta.idVenta}`,
+        `/api/v1/ventas/${venta.idVenta}`,
         jsonDataSales,
         {
-          headers:{
+          headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-      }
+          }
         }
       );
-      await axios.post(`${import.meta.env.VITE_API_DESPACHOS_URL}/api/v1/despachos`, jsonData, {
-        headers:{
+      await axios.post(`/api/v1/despachos`, jsonData, {
+        headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
-    }
+        }
       });
       Swal.fire({
-        title: "Despacho registrado 🛻!",
+        title: "Despacho registrado",
         text: "El despacho ha sido generado con éxito en la base de datos",
         icon: "success",
         confirmButtonText: "Aceptar",
@@ -74,9 +72,7 @@ export const FormDespacho = ({ venta, onClose }) => {
           />
         </div>
         <div className="mb-5">
-          <label className="block font-bold mb-2">
-            Orden de compra asociado
-          </label>
+          <label className="block font-bold mb-2">Orden de compra asociado</label>
           <input
             type="number"
             disabled={true}

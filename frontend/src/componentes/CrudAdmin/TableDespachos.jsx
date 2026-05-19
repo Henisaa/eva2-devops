@@ -5,25 +5,23 @@ import { FormCierreDespacho } from "./FormCierreDespacho";
 export const TableDespachos = () => {
   const [despachos, setDespachos] = useState([]);
   const despacho = async () => {
-    await axios
-      .get(`${import.meta.env.VITE_API_DESPACHOS_URL}/api/v1/despachos`, {
-        headers:{
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-        }
-      })
-      .then((response) => {
-        console.log(response.data);
-        setDespachos(response.data);
-      });
+    await axios.get(`/api/v1/despachos`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    }).then((response) => {
+      console.log(response.data);
+      setDespachos(response.data);
+    });
   };
   useEffect(() => {
     despacho();
   }, []);
   const [openModal, setOpenModal] = useState(false);
   const [despachoSeleccionado, setDespachoSeleccionado] = useState(null);
-  const handleAbrirModal = (despacho) => {
-    setDespachoSeleccionado(despacho);
+  const handleAbrirModal = (d) => {
+    setDespachoSeleccionado(d);
     setOpenModal(true);
   };
   return (
@@ -44,34 +42,19 @@ export const TableDespachos = () => {
                 </tr>
               </thead>
               <tbody>
-                {despachos
-                .map((despacho) => (
-                  <tr key={despacho.idDespacho}>
-                    <td className="pr-10 py-10 items-center">{despacho.idDespacho}</td>
-                    <td className="pr-10 py-10  items-center">
-                      {despacho.idCompra}
-                    </td>
-                    <td className="pr-10 py-10  items-center">
-                      {despacho.direccionCompra}
-                    </td>
-                    <td className="pr-10 py-10  items-center">
-                      {despacho.fechaDespacho}
-                    </td>
-                    <td className="pr-10 py-10  items-center">
-                      {despacho.patenteCamion}
-                    </td>
-                    <td className="pr-10 py-10  items-center">
-                      {despacho.entregado
-                        ? "Despacho entregado"
-                        : "Despacho pendiente"}
-                    </td>
-                    <td className="pr-10 py-10  items-center">
-                      {despacho.intento}
-                    </td>
+                {despachos.map((d) => (
+                  <tr key={d.idDespacho}>
+                    <td className="pr-10 py-10 items-center">{d.idDespacho}</td>
+                    <td className="pr-10 py-10 items-center">{d.idCompra}</td>
+                    <td className="pr-10 py-10 items-center">{d.direccionCompra}</td>
+                    <td className="pr-10 py-10 items-center">{d.fechaDespacho}</td>
+                    <td className="pr-10 py-10 items-center">{d.patenteCamion}</td>
+                    <td className="pr-10 py-10 items-center">{d.entregado ? "Despacho entregado" : "Despacho pendiente"}</td>
+                    <td className="pr-10 py-10 items-center">{d.intento}</td>
                     <td>
                       <button
-                        onClick={() => handleAbrirModal(despacho)}
-                        className="py-1 bg-orange-200 px-8 rounded-xl shadow-md hover:bg-orange-300/70 transition-all duration-300 "
+                        onClick={() => handleAbrirModal(d)}
+                        className="py-1 bg-orange-200 px-8 rounded-xl shadow-md hover:bg-orange-300/70 transition-all duration-300"
                       >
                         Cerrar despacho
                       </button>
@@ -83,18 +66,11 @@ export const TableDespachos = () => {
           </div>
         </div>
       </section>
-      <Modal
-        onClose={() => {
-          setOpenModal(false);
-        }}
-        open={openModal}
-      >
+      <Modal onClose={() => { setOpenModal(false); }} open={openModal}>
         {despachoSeleccionado && (
           <FormCierreDespacho
             despacho={despachoSeleccionado}
-            onClose={() => {
-              setOpenModal(false), despacho();
-            }}
+            onClose={() => { setOpenModal(false); despacho(); }}
           />
         )}
       </Modal>
